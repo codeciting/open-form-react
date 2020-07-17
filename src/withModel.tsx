@@ -2,7 +2,14 @@
 import React from 'react'
 import { FunctionComponent, useCallback, useMemo, useState } from 'react'
 
-import { Model, Field, ModelFormUiConfig, Section, validateAllConstraints, ConstraintsErrorPayload } from '@codeciting/open-form'
+import {
+  Model,
+  Field,
+  ModelFormUiConfig,
+  Section,
+  validateAllConstraints,
+  ConstraintsErrorPayload
+} from '@codeciting/open-form'
 import { useModelCoordinator } from './hooks'
 
 export function withModel<UI, P> (
@@ -20,21 +27,8 @@ export function withModel<UI, P> (
     const [data, setData] = useState(() => coordinator.normalize(initialData || {}))
     const [errors, setErrors] = useState(() => coordinator.makeErrorsMap())
 
-    const submit = useCallback(() => {
-      if (validateForm(data)) {
-        onSubmit(data)
-      }
-    }, [])
-
-    const reset = useCallback(() => {
-      setData(coordinator.normalize(initialData || {}))
-    }, [])
-
-    const updateData = useCallback((key, value) => {
-      setData(prev => Object.assign({}, prev, { [key]: value }))
-    }, [])
-
-    const validateForm = useCallback((data) => {
+    const submit = () => {
+      // Before summit, validate the entire form.
       const errorsRecords: Record<keyof P, ConstraintsErrorPayload<keyof P>[]> = {} as any
       let flag = false
       for (let field of coordinator.model.fields) {
@@ -48,26 +42,32 @@ export function withModel<UI, P> (
         setErrors(prev => Object.assign({}, prev, errorsRecords))
       } else {
         setErrors(coordinator.makeErrorsMap())
+        onSubmit(data)
       }
-      return flag
-    }, [])
+    }
 
-    const validateField = useCallback((field, value) => {
-      setErrors(prev => Object.assign({}, prev, { [field.name]: validateAllConstraints(field, value) }))
+    const reset = useCallback(() => {
+      setData(coordinator.normalize(initialData || {}))
+      setErrors(coordinator.makeErrorsMap())
     }, [])
 
     return <Wrapper submit={ submit } reset={ reset } submitting={ submitting }>
       { sections.map((section, index) =>
         <Section section={ section } key={ index }>
-          { section.rows.map((field) =>
-            <Row key={ field.name as string }
-                 field={ field }
-                 readonly={ submitting ? false : field.readonly }
-                 value={ data[field.name] }
-                 onChange={ value => updateData(field.name, value) }
-                 doValidate={ () => validateField(field, data[field.name]) }
-                 error={ errors[field.name] }
-            />
+          { section.rows.map((field) => {
+              const fieldName = field.name
+              return <Row key={ fieldName as string }
+                          field={ field }
+                          readonly={ submitting ? false : field.readonly }
+                          value={ data[fieldName] }
+                          onChange={ value => {
+                            // TODO: performance
+                            setData(prev => Object.assign({}, prev, { [fieldName]: value }))
+                            setErrors(prev => Object.assign({}, prev, { [fieldName]: validateAllConstraints(field, value) }))
+                          } }
+                          error={ errors[fieldName] }
+              />
+            }
           ) }
         </Section>
       ) }
@@ -90,7 +90,6 @@ export type ModelFormRowProps<UI, P> = {
   readonly: boolean
   value: any
   onChange: (newValue: any) => void
-  doValidate: () => void
   error: ConstraintsErrorPayload<keyof P>[]
 }
 
