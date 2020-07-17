@@ -2,9 +2,8 @@
 import React from 'react'
 import { FunctionComponent, useCallback, useMemo, useState } from 'react'
 
-import { Model, Field, ModelFormUiConfig, Section, validateAllConstraints, validate } from '@codeciting/open-form'
+import { Model, Field, ModelFormUiConfig, Section, validateAllConstraints, ConstraintsErrorPayload } from '@codeciting/open-form'
 import { useModelCoordinator } from './hooks'
-import { ConstraintsErrorPayload } from '@codeciting/open-form/dist/constraints'
 
 export function withModel<UI, P> (
   model: Model<UI, P>,
