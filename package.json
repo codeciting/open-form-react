@@ -1,6 +1,6 @@
 {
   "name": "@codeciting/open-form-react",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "repository": "https://github.com/codeciting/open-form-react.git",
   "author": "Jagger <634750802@qq.com>",
   "license": "MIT",
@@ -13,7 +13,7 @@
     "@babel/preset-env": "^7.10.4",
     "@babel/preset-react": "^7.10.4",
     "@babel/preset-typescript": "^7.10.4",
-    "@codeciting/open-form": "^0.0.6",
+    "@codeciting/open-form": "^0.0.7",
     "@rollup/plugin-babel": "^5.1.0",
     "@rollup/plugin-commonjs": "^14.0.0",
     "@rollup/plugin-node-resolve": "^8.4.0",
